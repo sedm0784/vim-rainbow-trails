@@ -102,7 +102,7 @@ this space!
 ==============================================================================
 6. Credits                                            *rainbow-trails-credits*
 
-Rainbow Trail was written by Rich Cheng.
+Rainbow Trails was written by Rich Cheng.
 
 The banner at the top of this help file was created using the “Broadway KB”
 FIGlet font at the Text ASCII Art Generator:
