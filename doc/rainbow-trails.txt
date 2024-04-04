@@ -1,0 +1,113 @@
+*rainbow-trails.txt* Magical rainbows in your Vim
+*rainbow* *rainbow-trails* *vim-rainbow-trails*
+
+         Author:  Rich Cheng <https://normalmo.de>
+       Homepage:  https://github.com/sedm0784/vim-rainbow-trails
+      Copyright:  © 2024 Rich Cheng
+        Licence:  Rainbow Trails uses the same licence as Vim. (See
+                  |license|.)
+        Version:  0.0.1
+
+==============================================================================
+                  ___    __    _   _      ___   ___   _                      ~
+                 | |_)  / /\  | | | |\ | | |_) / / \ \ \    /                ~
+                 |_| \ /_/--\ |_| |_| \| |_|_) \_\_/  \_\/\/                 ~
+                 _____  ___    __    _   _     __                            ~
+                  | |  | |_)  / /\  | | | |   ( (`                           ~
+                  |_|  |_| \ /_/--\ |_| |_|__ _)_)                           ~
+
+                                            nyannyannyannyan
+==============================================================================
+CONTENTS                                             *rainbow-trails-contents*
+
+    1. Introduction ........................|rainbow-trails-introduction|
+    2. Usage ...............................|rainbow-trails-usage|
+        2.1 Commands .......................|rainbow-trails-commands|
+    3. Changelog ...........................|rainbow-trails-changelog|
+    4. Issues ..............................|rainbow-trails-issues|
+        4.1 Known Issues ...................|rainbow-trails-known-issues|
+        4.2 Reporting Issues ...............|rainbow-trails-reporting-issues|
+    5. Roadmap .............................|rainbow-trails-roadmap|
+    6. Credits .............................|rainbow-trails-credits|
+
+==============================================================================
+1. Introduction                                  *rainbow-trails-introduction*
+
+Vim is SPECTACULAR but it isn't very kawaii. A cursor that sprinkles rainbows
+whereever it goes should help.
+
+==============================================================================
+2. Usage                                                *rainbow-trails-usage*
+
+------------------------------------------------------------------------------
+2.1 Commands                                         *rainbow-trails-commands*
+
+                                               |rainbow-trails-:RainbowTrails|
+:RainbowTrails
+               Switch on the rainbow trails
+                                              |rainbow-trails-:RainbowTrails!|
+:RainbowTrails!
+               Switch off the rainbow trails. Have you no JOY in your heart?!
+
+==============================================================================
+3. Changelog                                        *rainbow-trails-changelog*
+
+Version 0.0.1 - Initial dev version. Makes trails.
+
+==============================================================================
+4. Issues                                              *rainbow-trails-issues*
+
+------------------------------------------------------------------------------
+4.1 Known Issues                                 *rainbow-trails-known-issues*
+
+1. Trails go INVISIBLE when they cross areas of the buffer with NOTHING in
+   them. Not even magical rainbows can form in the ICY VACUUM of SPACE.
+
+2. If you start multiple rainbows and then QUICKLY switch windows sometimes
+   they FREEZE and become PERMANENT. If this happens, you can clear them with
+   the command: >
+
+        call clearmatches()
+
+<   Note that this will clear ALL matches set with the |matchadd()| functions
+   or |:match| commands, including ones not set by this plugin.
+
+3. Rainbow Trials currently only works in GUI Vim.
+
+------------------------------------------------------------------------------
+4.2 Reporting Issues                         *rainbow-trails-reporting-issues*
+
+You can contact me via the GitHub repository to ask questions or report
+issues:
+
+    https://github.com/sedm0784/vim-rainbow-trails
+
+Or if you prefer, feel free to email or toot instead:
+
+    rainbow hyphen trails at normalmo dot de
+    @normalmode@mastodon.social
+
+==============================================================================
+5. Roadmap                                            *rainbow-trails-roadmap*
+
+I might Try Xiaolin Wu's line algorithm for ANTIALIASED rainbows. I should
+also see if I can use |text-properties| to fix the no-rainbows-on-empty-lines
+issue and perhaps they are also more PERFORMANT.
+
+I'm not gonna lie: none of the above is likely to happen soon.
+
+I do fully intend to get Rainbow Trails working in the terminal, though. Watch
+this space!
+
+==============================================================================
+6. Credits                                            *rainbow-trails-credits*
+
+Rainbow Trail was written by Rich Cheng.
+
+The banner at the top of this help file was created using the “Broadway KB”
+FIGlet font at the Text ASCII Art Generator:
+
+    http://patorjk.com/software/taag/
+
+==============================================================================
+ vim:tw=78:ts=8:ft=help:norl:
