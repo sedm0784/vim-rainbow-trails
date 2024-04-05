@@ -4,7 +4,7 @@ TRANSFORM your BORING, regular Vim cursor into a delightful UNICORN that scatter
 
 ![A short Vim session. Vim is showing the :help page for the Rainbow Trails plugin. The command :Rainbow Trails is entered, and then the cursor is moved rapidly around the window, leaving rainbows behind it as it zips about.](https://normalmo.de/plugins/images/rainbow-trailser.gif)
 
-## Installation
+## I want Rainbows! How do I get them?!
 
 Install with your normal package manager, or just use Vim's built in [packages](https://vimhelp.org/repeat.txt.html#packages) feature:
 
