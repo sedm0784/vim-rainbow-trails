@@ -3,7 +3,7 @@
 " Homepage: http://github.com/sedm0784/rainbow-trails
 " Copyright: © 2024 Rich Cheng
 " Licence: Rainbow Trails uses the Vim licence.
-" Version: 0.0.1
+" Version: 0.1.0
 
 scriptencoding utf-8
 

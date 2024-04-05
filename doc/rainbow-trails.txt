@@ -6,7 +6,7 @@
       Copyright:  © 2024 Rich Cheng
         Licence:  Rainbow Trails uses the same licence as Vim. (See
                   |license|.)
-        Version:  0.0.1
+        Version:  0.1.0
 
 ==============================================================================
                   ___    __    _   _      ___   ___   _                      ~
