@@ -2,10 +2,10 @@ scriptencoding utf-8
 let s:save_cpoptions = &cpoptions
 set cpoptions&vim
 
-" FIXME: Allow user to specify colours and timer interval
-let s:colours = ['RainbowRed', 'RainbowOrange', 'RainbowYellow', 'RainbowGreen', 'RainbowBlue', 'RainbowIndigo', 'RainbowViolet']
+" FIXME: Allow user to specify timer interval
 let s:timer_interval = 1
 
+let s:colours = ['RainbowRed', 'RainbowOrange', 'RainbowYellow', 'RainbowGreen', 'RainbowBlue', 'RainbowIndigo', 'RainbowViolet']
 let s:colours = reverse(s:colours)
 let s:matches = []
 let s:timers = []
@@ -17,14 +17,14 @@ function! rainbow_trails#enable(enable) abort
   " FIXME: Check for timers feature.
   " FIXME: Check for 256 colours or termguicolors
   if a:enable
-    " FIXME: Get it working in 256-colour terms
-    highlight default RainbowRed guibg=#ff0000
-    highlight default RainbowOrange guibg=#ff7f00
-    highlight default RainbowYellow guibg=#ffff00
-    highlight default RainbowGreen guibg=#00ff00
-    highlight default RainbowBlue guibg=#007fff
-    highlight default RainbowIndigo guibg=#0000ff
-    highlight default RainbowViolet guibg=#7f00ff
+    " FIXME: Document how user can set their own colours
+    highlight default RainbowRed guibg=#ff0000 ctermbg=196
+    highlight default RainbowOrange guibg=#ff7f00 ctermbg=208
+    highlight default RainbowYellow guibg=#ffff00 ctermbg=226
+    highlight default RainbowGreen guibg=#00ff00 ctermbg=46
+    highlight default RainbowBlue guibg=#0000ff ctermbg=21
+    highlight default RainbowIndigo guibg=#00005f ctermbg=17
+    highlight default RainbowViolet guibg=#7f00ff ctermbg=129
     augroup RainbowTrails
       autocmd!
       autocmd CursorMoved * call s:cursor_moved()
