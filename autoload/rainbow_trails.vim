@@ -10,6 +10,8 @@ let s:colours = reverse(s:colours)
 let s:matches = []
 let s:timers = []
 
+let s:short_cutoff = 30
+let s:long_cutoff = 80
 
 function! rainbow_trails#enable(enable) abort
   " FIXME: Check for timers feature.
@@ -49,6 +51,11 @@ function! s:rainbow_start(new_position, old_position)
         \ a:new_position[2], a:new_position[1])
 
   let timers = range(len(positions))
+  if len(timers) >= s:long_cutoff
+    call map(timers, {k, v -> v / 3})
+  elseif len(timers) >= s:short_cutoff
+    call map(timers, {k, v -> v / 2})
+  endif
 
   let s:matches = []
 
@@ -59,16 +66,10 @@ function! s:rainbow_start(new_position, old_position)
   endwhile
 
   let timer_interval = s:timer_interval
-  if len(positions) < 40
-    let timer_interval += 2
-    if len(positions) < 20
-      let timer_interval += 1
-      if len(positions) < 10
-        let timer_interval += 1
-      endif
-    endif
+  if len(timers) < s:short_cutoff
+    " Map lengths of 1-29 to 7-0 extra ms
+    let timer_interval += float2nr(round((7.0 * (s:short_cutoff - len(timers))) / s:short_cutoff))
   endif
-
   call add(s:timers, timer_start(timer_interval, function(
         \ 's:rainbow_fade',
         \ [s:matches, positions, timers]),
@@ -129,7 +130,14 @@ function! s:rainbow_fade(matches, positions, timers, timer_id) abort
       call add(first_colour_positions, a:positions[i])
     endif
 
-    let a:timers[i] -= 1
+    if len(a:positions) >= s:long_cutoff
+      let subtrahend = 3
+    elseif len(a:positions) >= s:short_cutoff
+      let subtrahend = 2
+    else
+      let subtrahend = 1
+    endif
+    let a:timers[i] -= subtrahend
   endfor
 
   while !empty(first_colour_positions)
