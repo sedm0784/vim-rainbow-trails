@@ -14,3 +14,30 @@ Install with your normal package manager, or just use Vim's built in [packages](
 Then run `:helptags ALL` in Vim to generate the [documentation](doc/rainbow-trails.txt), and `:RainbowTrails` to start the FUN.
 
 [^1]: Unicorn not included.
+
+## How to install in LazyGit
+
+1. Create a file inside the plugins folder with:
+
+```lua
+  {
+    "sedm0784/vim-rainbow-trails",
+    enabled = true, 
+    lazy = false
+  }
+```
+
+If you want it to autoload put this on your init file
+
+```lua  
+vim.api.nvim_create_autocmd("BufEnter", { command = ":RainbowTrails", })
+
+```
+
+## Install in NvChad
+
+Add the lines above in your .config/nvim/lua/custom/plugins.lua list 
+Put the autoload if required on your .config/nvim/lua/custom/chadrc.lua file
+
+Enjoy!
+
