@@ -52,6 +52,7 @@ whereever it goes should help.
 ==============================================================================
 3. Changelog                                        *rainbow-trails-changelog*
 
+Version 0.1.0 - First released version. Works in terminal.
 Version 0.0.1 - Initial dev version. Makes trails.
 
 ==============================================================================
@@ -71,8 +72,6 @@ Version 0.0.1 - Initial dev version. Makes trails.
 
 <   Note that this will clear ALL matches set with the |matchadd()| functions
    or |:match| commands, including ones not set by this plugin.
-
-3. Rainbow Trials currently only works in GUI Vim.
 
 ------------------------------------------------------------------------------
 4.2 Reporting Issues                         *rainbow-trails-reporting-issues*
@@ -95,9 +94,6 @@ also see if I can use |text-properties| to fix the no-rainbows-on-empty-lines
 issue and perhaps they are also more PERFORMANT.
 
 I'm not gonna lie: none of the above is likely to happen soon.
-
-I do fully intend to get Rainbow Trails working in the terminal, though. Watch
-this space!
 
 ==============================================================================
 6. Credits                                            *rainbow-trails-credits*
