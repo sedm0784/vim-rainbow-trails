@@ -2,22 +2,21 @@ scriptencoding utf-8
 let s:save_cpoptions = &cpoptions
 set cpoptions&vim
 
-" FIXME: Allow user to specify timer interval
-let s:timer_interval = 1
-
-let s:colours = ['RainbowRed', 'RainbowOrange', 'RainbowYellow', 'RainbowGreen', 'RainbowBlue', 'RainbowIndigo', 'RainbowViolet']
-let s:colours = reverse(s:colours)
 let s:matches = []
 let s:timers = []
 
-let s:short_cutoff = 30
-let s:long_cutoff = 80
+let s:default_constant_interval = 1
+let s:default_max_variable_interval = 7.0
+let s:default_variable_timer_threshold = 30
+let s:default_colour_width_thresholds = [30, 80]
+let s:default_colours = ['RainbowRed', 'RainbowOrange', 'RainbowYellow', 'RainbowGreen', 'RainbowBlue', 'RainbowIndigo', 'RainbowViolet']
 
 function! rainbow_trails#enable(enable) abort
   " FIXME: Check for timers feature.
   " FIXME: Check for 256 colours or termguicolors
   if a:enable
     " FIXME: Document how user can set their own colours
+    " FIXME: Should we only highlight colours defined in s:colours()?
     highlight default RainbowRed guibg=#ff0000 ctermbg=196
     highlight default RainbowOrange guibg=#ff7f00 ctermbg=208
     highlight default RainbowYellow guibg=#ffff00 ctermbg=226
@@ -52,30 +51,36 @@ function! s:rainbow_start(new_position, old_position)
         \ a:old_position[2], a:old_position[1],
         \ a:new_position[2], a:new_position[1])
 
+  " How long before each character in the rainbow fades away
   let timers = range(len(positions))
-  if len(timers) >= s:long_cutoff
-    call map(timers, {k, v -> v / 3})
-  elseif len(timers) >= s:short_cutoff
-    call map(timers, {k, v -> v / 2})
-  endif
+  let colour_width = s:colour_width(len(timers))
+  call map(timers, {k, v -> v / colour_width})
 
   let s:matches = []
 
+  " Highlight everything with the first colour
   let first_colour_positions = copy(positions)
   while !empty(first_colour_positions)
-    call add(s:matches, matchaddpos(s:colours[-1], first_colour_positions[:7]))
+    " matchaddpos takes batches of up to 8 positions
+    call add(s:matches, matchaddpos(s:colours()[-1], first_colour_positions[:7]))
     let first_colour_positions = first_colour_positions[8:]
   endwhile
 
-  let timer_interval = s:timer_interval
-  if len(timers) < s:short_cutoff
-    " Map lengths of 1-29 to 7-0 extra ms
-    let timer_interval += float2nr(round((7.0 * (s:short_cutoff - len(timers))) / s:short_cutoff))
+  let timer_interval = get(g:, 'rainbow_constant_interval', s:default_constant_interval)
+
+  if len(timers) < s:variable_timer_threshold()
+    " Map lengths of 1..<variable_timer_threshold to
+    " rainbow_max_variable_interval-0 extra ms
+    let max_variable_interval = get(g:, 'rainbow_max_variable_interval', s:default_max_variable_interval)
+    let variable_interval = float2nr(round(
+          \ (max_variable_interval * (s:variable_timer_threshold() - len(timers)))
+          \ / s:variable_timer_threshold()))
+    let timer_interval += variable_interval
   endif
   call add(s:timers, timer_start(timer_interval, function(
         \ 's:rainbow_fade',
         \ [s:matches, positions, timers]),
-        \ {'repeat': len(s:colours) - 1 + len(positions)}))
+        \ {'repeat': len(s:colours()) - 1 + len(positions)}))
 endfunction
 
 
@@ -126,24 +131,19 @@ function! s:rainbow_fade(matches, positions, timers, timer_id) abort
     let timer = a:timers[i]
     if timer < 0
       continue
-    elseif timer < len(s:colours) - 1
-      call add(a:matches, matchaddpos(s:colours[timer], [a:positions[i]]))
+    elseif timer < len(s:colours()) - 1
+      " Highlight this colour now
+      call add(a:matches, matchaddpos(s:colours()[timer], [a:positions[i]]))
     else
+      " Add to first_colour_positions to highlight at end of this loop
       call add(first_colour_positions, a:positions[i])
     endif
 
-    if len(a:positions) >= s:long_cutoff
-      let subtrahend = 3
-    elseif len(a:positions) >= s:short_cutoff
-      let subtrahend = 2
-    else
-      let subtrahend = 1
-    endif
-    let a:timers[i] -= subtrahend
+    let a:timers[i] -= s:colour_width(len(a:positions))
   endfor
 
   while !empty(first_colour_positions)
-    call add(a:matches, matchaddpos(s:colours[-1], first_colour_positions[:7]))
+    call add(a:matches, matchaddpos(s:colours()[-1], first_colour_positions[:7]))
     let first_colour_positions = first_colour_positions[8:]
   endwhile
 endfunction
@@ -164,6 +164,17 @@ function! s:stop_timers() abort
 endfunction
 
 
+function! s:colour_width(rainbow_length) abort
+  let colour_width = 1
+  for threshold in s:colour_width_thresholds()
+    if a:rainbow_length >= threshold
+      let colour_width += 1
+    endif
+  endfor
+  return colour_width
+endfunction
+
+
 function! s:clear_matches(matches) abort
   for id in a:matches
     " FIXME: If the user starts two rainbows and switches windows before they
@@ -173,6 +184,27 @@ function! s:clear_matches(matches) abort
   if !empty(a:matches)
     call remove(a:matches, 0, -1)
   endif
+endfunction
+
+"
+" User Configuration Wrappers
+"
+
+function! s:variable_timer_threshold() abort
+   return get(g:, 'rainbow_variable_timer_threshold', s:default_variable_timer_threshold)
+endfunction
+
+
+function s:colour_width_thresholds()
+  " FIXME: Should this be fully dynamic, instead of configurable? Can we come
+  "        up with a nice implementation of that that always works?
+  return get(g:, 'rainbow_colour_width_thresholds', s:default_colour_width_thresholds)
+endfunction
+
+
+function! s:colours() abort
+  return reverse(get(g:, 'rainbow_colours', 
+        \ s:default_colours))
 endfunction
 
 
