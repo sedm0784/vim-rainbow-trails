@@ -29,7 +29,9 @@ function! rainbow_trails#enable(enable) abort
       autocmd!
       autocmd CursorMoved * call s:cursor_moved()
       autocmd WinLeave * call s:stop_trails()
+      autocmd WinEnter * let w:position = getpos('.')
     augroup END
+    let w:position = getpos('.')
   else
     autocmd! RainbowTrails
   endif
