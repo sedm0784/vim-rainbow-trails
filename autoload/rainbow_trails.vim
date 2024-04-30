@@ -6,7 +6,7 @@ let s:matches = []
 let s:timers = []
 
 let s:default_constant_interval = 1
-let s:default_max_variable_interval = 7.0
+let s:default_max_variable_interval = 7
 let s:default_variable_timer_threshold = 30
 let s:default_colour_width_thresholds = [30, 80]
 let s:default_colours = ['RainbowRed', 'RainbowOrange', 'RainbowYellow', 'RainbowGreen', 'RainbowBlue', 'RainbowIndigo', 'RainbowViolet']
@@ -71,7 +71,10 @@ function! s:rainbow_start(new_position, old_position)
   if len(timers) < s:variable_timer_threshold()
     " Map lengths of 1..<variable_timer_threshold to
     " rainbow_max_variable_interval-0 extra ms
-    let max_variable_interval = get(g:, 'rainbow_max_variable_interval', s:default_max_variable_interval)
+
+    " Convert max_variable_interval option to Float so entire calculation
+    " below is coerced to Float
+    let max_variable_interval = 1.0 * get(g:, 'rainbow_max_variable_interval', s:default_max_variable_interval)
     let variable_interval = float2nr(round(
           \ (max_variable_interval * (s:variable_timer_threshold() - len(timers)))
           \ / s:variable_timer_threshold()))
