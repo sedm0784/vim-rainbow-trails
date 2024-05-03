@@ -206,8 +206,8 @@ endfunction
 
 
 function! s:colours() abort
-  return reverse(get(g:, 'rainbow_colours', 
-        \ s:default_colours))
+  return reverse(copy(get(g:, 'rainbow_colours',
+        \ s:default_colours)))
 endfunction
 
 
