@@ -6,8 +6,9 @@ let s:matches = []
 let s:timers = []
 
 let s:default_constant_interval = 1
-let s:default_max_variable_interval = 7
+let s:default_max_variable_interval = 20
 let s:default_variable_timer_threshold = 30
+let s:default_throttle_thresholds = [9, 30, 80]
 let s:default_colour_width_thresholds = [30, 80]
 let s:default_colours = ['RainbowRed', 'RainbowOrange', 'RainbowYellow', 'RainbowGreen', 'RainbowBlue', 'RainbowIndigo', 'RainbowViolet']
 
@@ -53,37 +54,41 @@ function! s:rainbow_start(new_position, old_position)
 
   " How long before each character in the rainbow fades away
   let timers = range(len(positions))
-  let colour_width = s:colour_width(len(timers))
-  call map(timers, {k, v -> v / colour_width})
+  call map(timers, {k, v -> v + len(s:colours()) - 2})
 
   let s:matches = []
 
   " Highlight everything with the first colour
   let first_colour_positions = copy(positions)
   while !empty(first_colour_positions)
+    " FIXME: This limitation is no longer mentioned in the current :help
     " matchaddpos takes batches of up to 8 positions
     call add(s:matches, matchaddpos(s:colours()[-1], first_colour_positions[:7]))
     let first_colour_positions = first_colour_positions[8:]
   endwhile
 
-  let timer_interval = get(g:, 'rainbow_constant_interval', s:default_constant_interval)
+  let timer_interval = max([1, get(g:, 'rainbow_constant_interval', s:default_constant_interval)])
 
   if len(timers) < s:variable_timer_threshold()
     " Map lengths of 1..<variable_timer_threshold to
     " rainbow_max_variable_interval-0 extra ms
 
-    " Convert max_variable_interval option to Float so entire calculation
-    " below is coerced to Float
-    let max_variable_interval = 1.0 * get(g:, 'rainbow_max_variable_interval', s:default_max_variable_interval)
-    let variable_interval = float2nr(round(
-          \ (max_variable_interval * (s:variable_timer_threshold() - len(timers)))
-          \ / s:variable_timer_threshold()))
-    let timer_interval += variable_interval
+    let timer_interval += s:variable_interval(len(timers))
   endif
   call add(s:timers, timer_start(timer_interval, function(
         \ 's:rainbow_fade',
         \ [s:matches, positions, timers]),
         \ {'repeat': len(s:colours()) - 1 + len(positions)}))
+endfunction
+
+
+function! s:variable_interval(length) abort
+  " Convert max_variable_interval option to Float so entire calculation
+  " below is coerced to Float
+  let max_variable_interval = 1.0 * get(g:, 'rainbow_max_variable_interval', s:default_max_variable_interval)
+  return float2nr(round(
+        \ (max_variable_interval * (s:variable_timer_threshold() - a:length))
+        \ / s:variable_timer_threshold()))
 endfunction
 
 
@@ -132,17 +137,26 @@ function! s:rainbow_fade(matches, positions, timers, timer_id) abort
   let first_colour_positions = []
   for i in range(len(a:positions))
     let timer = a:timers[i]
+    let adjusted_timer = timer / s:colour_width(len(a:positions))
     if timer < 0
       continue
-    elseif timer < len(s:colours()) - 1
+    elseif adjusted_timer < len(s:colours()) - 1
       " Highlight this colour now
-      call add(a:matches, matchaddpos(s:colours()[timer], [a:positions[i]]))
+      call add(a:matches, matchaddpos(s:colours()[adjusted_timer], [a:positions[i]]))
     else
       " Add to first_colour_positions to highlight at end of this loop
       call add(first_colour_positions, a:positions[i])
     endif
 
-    let a:timers[i] -= s:colour_width(len(a:positions))
+    let timer_reduction = min([-1, get(g:, 'rainbow_constant_interval', s:default_constant_interval)])
+
+    for threshold in get(g:, 'rainbow_throttle_thresholds', s:default_throttle_thresholds)
+      if len(a:positions) >= threshold
+        let timer_reduction -= 1
+      endif
+    endfor
+
+    let a:timers[i] += timer_reduction
   endfor
 
   while !empty(first_colour_positions)
@@ -194,7 +208,7 @@ endfunction
 "
 
 function! s:variable_timer_threshold() abort
-   return get(g:, 'rainbow_variable_timer_threshold', s:default_variable_timer_threshold)
+  return get(g:, 'rainbow_variable_timer_threshold', s:default_variable_timer_threshold)
 endfunction
 
 
