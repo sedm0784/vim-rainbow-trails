@@ -16,6 +16,22 @@ function! rainbow_trails#enable(enable) abort
   " FIXME: Check for timers feature.
   " FIXME: Check for 256 colours or termguicolors
   if a:enable
+    augroup RainbowTrails
+      autocmd!
+      autocmd CursorMoved * call s:cursor_moved()
+      autocmd WinLeave * call s:stop_trails()
+      autocmd WinEnter * let w:position = getpos('.')
+      autocmd ColorScheme * call s:setup_colors()
+    augroup END
+    let w:position = getpos('.')
+    call s:setup_colors()
+  else
+    autocmd! RainbowTrails
+  endif
+endfunction
+
+
+function! s:setup_colors() abort
     " FIXME: Document how user can set their own colours
     " FIXME: Should we only highlight colours defined in s:colours()?
     highlight default RainbowRed guibg=#ff0000 ctermbg=196
@@ -25,16 +41,6 @@ function! rainbow_trails#enable(enable) abort
     highlight default RainbowBlue guibg=#0000ff ctermbg=21
     highlight default RainbowIndigo guibg=#00005f ctermbg=17
     highlight default RainbowViolet guibg=#7f00ff ctermbg=129
-    augroup RainbowTrails
-      autocmd!
-      autocmd CursorMoved * call s:cursor_moved()
-      autocmd WinLeave * call s:stop_trails()
-      autocmd WinEnter * let w:position = getpos('.')
-    augroup END
-    let w:position = getpos('.')
-  else
-    autocmd! RainbowTrails
-  endif
 endfunction
 
 
