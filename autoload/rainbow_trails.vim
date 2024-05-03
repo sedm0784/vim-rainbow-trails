@@ -2,14 +2,17 @@ scriptencoding utf-8
 let s:save_cpoptions = &cpoptions
 set cpoptions&vim
 
+" FIXME: Profile to see if we can optimise. Otherwise, just try pulling
+"        calculations/function calls out of inner loops.
+
 let s:matches = []
 let s:timers = []
 
 let s:default_constant_interval = 1
 let s:default_max_variable_interval = 20
 let s:default_variable_timer_threshold = 30
-let s:default_throttle_thresholds = [9, 30, 80]
-let s:default_colour_width_thresholds = [30, 80]
+let s:default_fade_rate_thresholds = [8, 30, 80]
+let s:default_colour_width_thresholds = [8, 30, 80]
 let s:default_colours = ['RainbowRed', 'RainbowOrange', 'RainbowYellow', 'RainbowGreen', 'RainbowBlue', 'RainbowIndigo', 'RainbowViolet']
 
 function! rainbow_trails#enable(enable) abort
@@ -155,15 +158,15 @@ function! s:rainbow_fade(matches, positions, timers, timer_id) abort
       call add(first_colour_positions, a:positions[i])
     endif
 
-    let timer_reduction = min([-1, get(g:, 'rainbow_constant_interval', s:default_constant_interval)])
+    let fade_rate = min([-1, get(g:, 'rainbow_constant_interval', s:default_constant_interval)])
 
-    for threshold in get(g:, 'rainbow_throttle_thresholds', s:default_throttle_thresholds)
+    for threshold in get(g:, 'rainbow_fade_rate_thresholds', s:default_fade_rate_thresholds)
       if len(a:positions) >= threshold
-        let timer_reduction -= 1
+        let fade_rate -= 1
       endif
     endfor
 
-    let a:timers[i] += timer_reduction
+    let a:timers[i] += fade_rate
   endfor
 
   while !empty(first_colour_positions)
