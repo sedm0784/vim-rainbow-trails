@@ -23,10 +23,10 @@ function! rainbow_trails#enable(enable) abort
       autocmd!
       autocmd CursorMoved * call s:cursor_moved()
       autocmd WinLeave * call s:stop_trails()
-      autocmd WinEnter * let w:position = getpos('.')
+      autocmd WinEnter * let w:rainbow_position = getpos('.')
       autocmd ColorScheme * call s:setup_colors()
     augroup END
-    let w:position = getpos('.')
+    let w:rainbow_position = getpos('.')
     call s:setup_colors()
   else
     autocmd! RainbowTrails
@@ -49,10 +49,10 @@ endfunction
 
 function! s:cursor_moved() abort
   let new_position = getpos('.')
-  if exists('w:position')
-    call s:rainbow_start(new_position, w:position)
+  if exists('w:rainbow_position')
+    call s:rainbow_start(new_position, w:rainbow_position)
   endif
-  let w:position = new_position
+  let w:rainbow_position = new_position
 endfunction
 
 
