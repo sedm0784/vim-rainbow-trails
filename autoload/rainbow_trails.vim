@@ -110,7 +110,8 @@ function! s:bresenham(x0, y0, x1, y1) abort
   let x = a:x0
   let y = a:y0
   while 1
-    if y >= line('w0') && y <= line('w$')
+    " Don't add off-screen lines or lines hidden within closed folds
+    if y >= line('w0') && y <= line('w$') && (foldclosed(y) == -1 || foldclosed(y) == y)
       call add(positions, [y, x])
     endif
     if x == a:x1 && y == a:y1
