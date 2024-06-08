@@ -61,6 +61,10 @@ function! s:rainbow_start(new_position, old_position)
         \ a:old_position[2], a:old_position[1],
         \ a:new_position[2], a:new_position[1])
 
+  if len(positions) == 0
+    return
+  endif
+
   " How long before each character in the rainbow fades away
   " With a colour width of 1, the first position should start with a value of
   " num_colours - 1, because it *starts* as the first colour and then cycles
