@@ -9,10 +9,10 @@ let s:matches = []
 let s:timers = []
 
 let s:default_constant_interval = 1
-let s:default_max_variable_interval = 20
+let s:default_max_variable_interval = 5
 let s:default_variable_timer_threshold = 30
 let s:default_fade_rate_thresholds = [8, 30, 80]
-let s:default_colour_width_thresholds = [8, 30, 80]
+let s:default_colour_width_thresholds = [0, 0, 8]
 let s:default_colours = ['RainbowRed', 'RainbowOrange', 'RainbowYellow', 'RainbowGreen', 'RainbowBlue', 'RainbowIndigo', 'RainbowViolet']
 
 function! rainbow_trails#enable(enable) abort
@@ -62,8 +62,16 @@ function! s:rainbow_start(new_position, old_position)
         \ a:new_position[2], a:new_position[1])
 
   " How long before each character in the rainbow fades away
+  " With a colour width of 1, the first position should start with a value of
+  " num_colours - 1, because it *starts* as the first colour and then cycles
+  " through the other colours which have indexes 1-6, one per callback.
+  " With larger colour widths, we need to multiply by the width, so each
+  " colour is maintained for that number of callbacks.
+  "
+  " So e.g. with a colour width of 3 and 7 colours, we want timers to contain:
+  " [18, 19, 20, 21, ...]
   let timers = range(len(positions))
-  call map(timers, {k, v -> v + len(s:colours()) - 2})
+  call map(timers, {k, v -> v + (len(s:colours()) - 1) * s:colour_width(len(positions))})
 
   let s:matches = []
 
@@ -84,10 +92,13 @@ function! s:rainbow_start(new_position, old_position)
 
     let timer_interval += s:variable_interval(len(timers))
   endif
+  let fade_rate = -s:fade_rate(len(positions))
+  let repeats = timers[-1] / fade_rate + 1
+  let repeats += timers[-1] % fade_rate > 0
   call add(s:timers, timer_start(timer_interval, function(
         \ 's:rainbow_fade',
         \ [s:matches, positions, timers]),
-        \ {'repeat': len(s:colours()) - 1 + len(positions)}))
+        \ {'repeat': repeats}))
 endfunction
 
 
@@ -144,29 +155,23 @@ endfunction
 function! s:rainbow_fade(matches, positions, timers, timer_id) abort
   call s:clear_matches(a:matches)
 
+  let colour_width = s:colour_width(len(a:positions))
+
   let first_colour_positions = []
   for i in range(len(a:positions))
     let timer = a:timers[i]
-    let adjusted_timer = timer / s:colour_width(len(a:positions))
-    if timer < 0
+    if timer <= 0
       continue
-    elseif adjusted_timer < len(s:colours()) - 1
-      " Highlight this colour now
-      call add(a:matches, matchaddpos(s:colours()[adjusted_timer], [a:positions[i]]))
+    elseif timer <= (len(s:colours())) * colour_width
+      " Highlight this colour now, using 1-based indexing
+      let colour_index = (timer + colour_width - 1) / colour_width - 1
+      call add(a:matches, matchaddpos(s:colours()[colour_index], [a:positions[i]]))
     else
       " Add to first_colour_positions to highlight at end of this loop
       call add(first_colour_positions, a:positions[i])
     endif
 
-    let fade_rate = min([-1, get(g:, 'rainbow_constant_interval', s:default_constant_interval)])
-
-    for threshold in get(g:, 'rainbow_fade_rate_thresholds', s:default_fade_rate_thresholds)
-      if len(a:positions) >= threshold
-        let fade_rate -= 1
-      endif
-    endfor
-
-    let a:timers[i] += fade_rate
+    let a:timers[i] += s:fade_rate(len(a:positions))
   endfor
 
   while !empty(first_colour_positions)
@@ -175,6 +180,18 @@ function! s:rainbow_fade(matches, positions, timers, timer_id) abort
   endwhile
 endfunction
 
+
+function! s:fade_rate(rainbow_length)
+  let fade_rate = min([-1, get(g:, 'rainbow_constant_interval', s:default_constant_interval)])
+
+  for threshold in get(g:, 'rainbow_fade_rate_thresholds', s:default_fade_rate_thresholds)
+    if a:rainbow_length >= threshold
+      let fade_rate -= 1
+    endif
+  endfor
+
+  return fade_rate
+endfunction
 
 function! s:stop_trails() abort
   call s:stop_timers()
