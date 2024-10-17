@@ -78,14 +78,13 @@ vimrc. >
                                               'RainbowYellow', 'RainbowGreen',
                                               'RainbowBlue', 'RainbowIndigo',
                                               'RainbowViolet'])
-                Rainbow Trails uses the traditional seven ROYGBIV colours, but
-                perhaps that is not enough colours for you. Or perhaps it is
-                too many! Never fear. Set 'g:rainbow_colours' to declare your
-                desired set of colours. e.g. >
+                As detailed in |rainbow-trails-highlighting|, Rainbow Trails
+                uses the traditional seven ROYGBIV colours, but perhaps that
+                is not enough colours for you. Or perhaps it is too many!
+                Never fear. Set 'g:rainbow_colours' to declare your desired
+                set of colours. e.g. >
 
-        let g:rainbow_colours = ['RainbowBlack', 'RainbowWhite']
-        highlight RainbowBlack guibg=#000000 ctermbg=0
-        highlight RainbowWhite guibg=#ffffff ctermbg=15
+        let g:rainbow_colours = ['RainbowRed', 'RainbowGreen', 'RainbowBlue']
 <
                                          *'g:rainbow_colour_width_thresholds'*
 'g:rainbow_colour_width_thresholds'    list   (default: [0, 0, 8])
