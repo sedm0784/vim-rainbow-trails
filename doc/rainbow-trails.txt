@@ -86,24 +86,31 @@ vimrc. >
 
         let g:rainbow_colours = ['RainbowRed', 'RainbowGreen', 'RainbowBlue']
 <
+                                                    *'g:rainbow_colour_width'*
+'g:rainbow_colour_width'               number (default: 3)
+                This option can be used to change the width of each band of
+                colour within the rainbow. By default, each band is 3
+                characters wide.
+
                                          *'g:rainbow_colour_width_thresholds'*
-'g:rainbow_colour_width_thresholds'    list   (default: [0, 0, 8])
+'g:rainbow_colour_width_thresholds'    list   (default: [8])
                 To ensure a PLEASING balance, Rainbow Trails allows longer
                 rainbows to be composed of wider bands of colour than more
                 ephemeral, short rainbows.
 
-                Each entry in 'g:rainbow_colour_width_thresholds' is one extra
-                character. So for the default value of [0, 0, 8], rainbows
-                shorter than 8 characters will have bands that are 3
-                characters wide, and rainbows that are 8 characters long will
-                have bands that are 4 characters wide.
+                Each entry in 'g:rainbow_colour_width_thresholds' adds one
+                extra character for rainbows above that length. So for the
+                default value of [8], rainbows longer than 8 characters will
+                have bands that are one extra character wide. With
+                'g:rainbow_colour_width' set to 3, this results in bands that
+                are 4 characters wide.
 
-                Setting 'g:rainbow_colour_width_thresholds' to [30, 80] will
-                specify that rainbows shorter than 30 should have 1-character
-                wide colour bands, rainbows that are between 30 and 79
-                characters long should have 2-character wide colour bands, and
-                rainbows that are 80 characters or longer should have
-                3-character wide colour bands.
+                Keeping the same setting for 'g:rainbow_colour_width' and
+                setting 'g:rainbow_colour_width_thresholds' to [30, 80, 80]
+                would specify that rainbows that are between 30 and 79
+                characters long should have bands that are 4 characters wide,
+                and that rainbows that are 80 characters or longer should have
+                6-character wide colour bands.
 
                                                *'g:rainbow_constant_interval'*
 'g:rainbow_constant_interval'          number (default: 1)

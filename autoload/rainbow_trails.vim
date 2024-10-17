@@ -8,12 +8,13 @@ set cpoptions&vim
 let s:matches = []
 let s:timers = []
 
-let s:default_constant_interval = 1
-let s:default_max_variable_interval = 5
-let s:default_variable_timer_threshold = 30
-let s:default_fade_rate_thresholds = [8, 30, 80, 150]
-let s:default_colour_width_thresholds = [0, 0, 8]
 let s:default_colours = ['RainbowRed', 'RainbowOrange', 'RainbowYellow', 'RainbowGreen', 'RainbowBlue', 'RainbowIndigo', 'RainbowViolet']
+let s:default_colour_width = 3
+let s:default_colour_width_thresholds = [8]
+let s:default_constant_interval = 1
+let s:default_variable_timer_threshold = 30
+let s:default_max_variable_interval = 5
+let s:default_fade_rate_thresholds = [8, 30, 80, 150]
 
 function! rainbow_trails#enable(enable) abort
   " FIXME: Check for timers feature.
@@ -213,7 +214,7 @@ endfunction
 
 
 function! s:colour_width(rainbow_length) abort
-  let colour_width = 1
+  let colour_width = max([1, get(g:, 'rainbow_colour_width', s:default_colour_width)])
   for threshold in s:colour_width_thresholds()
     if a:rainbow_length >= threshold
       let colour_width += 1
