@@ -54,6 +54,21 @@ whereever it goes should help.
 ------------------------------------------------------------------------------
 2.2 Highlighting                                 *rainbow-trails-highlighting*
 
+Rainbow Trails is fully pre-configured to display beautiful TECHNICOLOUR
+rainbows both in GUI Vim and in terminal Vim with either 256 colours or
+'termguicolors'. But if you don't care for the colours I have METICULOUSLY
+selected for you, you can use your own. By way of example, here are the
+highlighting commands for a greyscale rainbow, as if yanked from Ansel Adams's
+vimrc. >
+
+        highlight RainbowRed guibg=#808080 ctermbg=244
+        highlight RainbowOrange guibg=#6c6c6c ctermbg=242
+        highlight RainbowYellow guibg=#585858 ctermbg=240
+        highlight RainbowGreen guibg=#444444 ctermbg=238
+        highlight RainbowBlue guibg=#303030 ctermbg=236
+        highlight RainbowIndigo guibg=#1c1c1c ctermbg=234
+        highlight RainbowViolet guibg=#080808 ctermbg=232
+<
 ------------------------------------------------------------------------------
 2.3 Options                                           *rainbow-trails-options*
 
