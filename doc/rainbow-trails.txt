@@ -23,6 +23,8 @@ CONTENTS                                             *rainbow-trails-contents*
     1. Introduction ........................|rainbow-trails-introduction|
     2. Usage ...............................|rainbow-trails-usage|
         2.1 Commands .......................|rainbow-trails-commands|
+        2.1 Highlighting ...................|rainbow-trails-highlighting|
+        2.3 Options ........................|rainbow-trails-options|
     3. Changelog ...........................|rainbow-trails-changelog|
     4. Issues ..............................|rainbow-trails-issues|
         4.1 Known Issues ...................|rainbow-trails-known-issues|
@@ -42,16 +44,101 @@ whereever it goes should help.
 ------------------------------------------------------------------------------
 2.1 Commands                                         *rainbow-trails-commands*
 
-                                               |rainbow-trails-:RainbowTrails|
-:RainbowTrails
-               Switch on the rainbow trails
-                                              |rainbow-trails-:RainbowTrails!|
-:RainbowTrails!
-               Switch off the rainbow trails. Have you no JOY in your heart?!
+                                               *rainbow-trails-:RainbowTrails*
+`:RainbowTrails`
+                Switch on the rainbow trails
+                                              *rainbow-trails-:RainbowTrails!*
+`:RainbowTrails!`
+                Switch off the rainbow trails. Have you no JOY in your heart?!
+
+------------------------------------------------------------------------------
+2.2 Highlighting                                 *rainbow-trails-highlighting*
+
+------------------------------------------------------------------------------
+2.3 Options                                           *rainbow-trails-options*
+
+                                                         *'g:rainbow_colours'*
+'g:rainbow_colours'                    list (default:
+                                             ['RainbowRed', 'RainbowOrange',
+                                              'RainbowYellow', 'RainbowGreen',
+                                              'RainbowBlue', 'RainbowIndigo',
+                                              'RainbowViolet'])
+                Rainbow Trails uses the traditional seven ROYGBIV colours, but
+                perhaps that is not enough colours for you. Or perhaps it is
+                too many! Never fear. Set 'g:rainbow_colours' to declare your
+                desired set of colours. e.g. >
+
+        let g:rainbow_colours = ['RainbowBlack', 'RainbowWhite']
+        highlight RainbowBlack guibg=#000000 ctermbg=0
+        highlight RainbowWhite guibg=#ffffff ctermbg=15
+<
+                                         *'g:rainbow_colour_width_thresholds'*
+'g:rainbow_colour_width_thresholds'    list   (default: [0, 0, 8])
+                To ensure a PLEASING balance, Rainbow Trails allows longer
+                rainbows to be composed of wider bands of colour than more
+                ephemeral, short rainbows.
+
+                Each entry in 'g:rainbow_colour_width_thresholds' is one extra
+                character. So for the default value of [0, 0, 8], rainbows
+                shorter than 8 characters will have bands that are 3
+                characters wide, and rainbows that are 8 characters long will
+                have bands that are 4 characters wide.
+
+                Setting 'g:rainbow_colour_width_thresholds' to [30, 80] will
+                specify that rainbows shorter than 30 should have 1-character
+                wide colour bands, rainbows that are between 30 and 79
+                characters long should have 2-character wide colour bands, and
+                rainbows that are 80 characters or longer should have
+                3-character wide colour bands.
+
+                                               *'g:rainbow_constant_interval'*
+'g:rainbow_constant_interval'          number (default: 1)
+                The main mechanism used for setting the speed at which the
+                rainbows DASH across your buffer is
+                'g:rainbow_constant_interval'.
+
+                Positive values greater than 0 make the rainbow SLOWER, by
+                introducing a delay of that many milliseconds between each
+                step the rainbow takes.
+
+                Negative values below 0 make the rainbow FASTER, by increasing
+                the number of characters which it moves at each step. Setting
+                a value of -2 will for example result in a rainbow that moves
+                2 characters every step.
+
+                But there are three further options! The first two allow you
+                to make short rainbows SLOWER, so you can ENJOY them better.
+                The third, allows you to make long rainbows FASTER, because
+                time is money.
+
+                                        *'g:rainbow_variable_timer_threshold'*
+'g:rainbow_variable_timer_threshold'   number (default: 30)
+
+                                           *'g:rainbow_max_variable_interval'*
+'g:rainbow_max_variable_interval'      number (default: 7)
+
+                Movements shorter than 'g:rainbow_variable_timer_threshold'
+                have an extra timer interval applied, in a sliding scale
+                between 0 and 'g:rainbow_max_variable_interval'. Like
+                'g:rainbow_constant_interval', The variable interval is also
+                measured in milliseconds.
+
+                                            *'g:rainbow_fade_rate_thresholds'*
+'g:rainbow_fade_rate_thresholds'       list   (default: [8, 30, 80])
+
+                Each entry in 'g:rainbow_fade_rate_thresholds increases the
+                number of characters the rainbow moves at each step. So with
+                the default value of [8, 30, 80], the rainbow will move one
+                character per step faster if it is 8-29 characters long, TWO
+                characters faster if it is 30-79 characters long, and a
+                massive THREE characters faster if it is 80 or more characters
+                long.
 
 ==============================================================================
 3. Changelog                                        *rainbow-trails-changelog*
 
+Version 1.0.0 - Completely reworked timing mechanism. Configuration options.
+                HELPFUL documentation.
 Version 0.1.0 - First released version. Works in terminal.
 Version 0.0.1 - Initial dev version. Makes trails.
 

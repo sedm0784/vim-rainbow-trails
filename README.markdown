@@ -45,4 +45,8 @@ highlight RainbowViolet guibg=#080808 ctermbg=232
 
 Of course! Rainbow Trails works NATIVELY in terminals where `'termguicolors'` is enabled, and I have METICULOUSLY selected an appropriate set of colours for use in 256-colour terminals. If you have fewer than 256 colours available, you may wish to configure the highlighting further. (See above.)
 
+## I have more... *specific* configuration requirements.
+
+Rainbow Trails suits all needs. Fast rainbows? Slow rainbows? Double rainbows? All the way? Consult the [:help](doc.rainbow-trails.txt). There's a rainbow for everyone!
+
 [^1]: Unicorn not included.
