@@ -36,7 +36,6 @@ endfunction
 
 
 function! s:setup_colors() abort
-    " FIXME: Document how user can set their own colours
     " FIXME: Should we only highlight colours defined in s:colours()?
     highlight default RainbowRed guibg=#ff0000 ctermbg=196
     highlight default RainbowOrange guibg=#ff7f00 ctermbg=208
