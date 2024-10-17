@@ -11,7 +11,7 @@ let s:timers = []
 let s:default_constant_interval = 1
 let s:default_max_variable_interval = 5
 let s:default_variable_timer_threshold = 30
-let s:default_fade_rate_thresholds = [8, 30, 80]
+let s:default_fade_rate_thresholds = [8, 30, 80, 150]
 let s:default_colour_width_thresholds = [0, 0, 8]
 let s:default_colours = ['RainbowRed', 'RainbowOrange', 'RainbowYellow', 'RainbowGreen', 'RainbowBlue', 'RainbowIndigo', 'RainbowViolet']
 
