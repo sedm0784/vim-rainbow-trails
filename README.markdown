@@ -31,6 +31,8 @@ Rainbow Trails is ENTERPRISE-READY. But maybe the Rainbows are too FANCY for you
 
 ![Another short Vim session. This time, when the cursor is moves, the trails are in greyscale.](https://normalmo.de/rainbow-greys.gif)
 
+For BUSINESS-certified rainbows, file a request to your IT department to install these [:highlight](https://vimhelp.org/syntax.txt.html#%3Ahighlight) commands in your vimrc.
+
 ```vim
 highlight RainbowRed guibg=#808080 ctermbg=244
 highlight RainbowOrange guibg=#6c6c6c ctermbg=242
