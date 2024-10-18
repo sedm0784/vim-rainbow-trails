@@ -49,6 +49,6 @@ Of course! Rainbow Trails works NATIVELY in terminals where `'termguicolors'` is
 
 ## I have more... *specific* configuration requirements.
 
-Rainbow Trails suits all needs. Fast rainbows? Slow rainbows? Double rainbows? All the way? Consult the [:help](doc.rainbow-trails.txt). There's a rainbow for everyone!
+Rainbow Trails suits all needs. Fast rainbows? Slow rainbows? Double rainbows? All the way? Consult the [:help](doc/rainbow-trails.txt). There's a rainbow for everyone!
 
 [^1]: Unicorn not included.
