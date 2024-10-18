@@ -29,7 +29,7 @@ Now Vim will enable the rainbows immediately after loading the plugin.
 
 Rainbow Trails is ENTERPRISE-READY. But maybe the Rainbows are too FANCY for your workplace. Never fear! The level of fanciness is entirely configurable. For instance:
 
-![Another short Vim session. This time, when the cursor is moves, the trails are in greyscale.](https://normalmo.de/plugins/images/rainbow-greys.gif)
+![Another short Vim session. This time, when the cursor is moves, the trails are in greyscale.](https://normalmo.de/rainbow-greys.gif)
 
 ```vim
 highlight RainbowRed guibg=#808080 ctermbg=244
