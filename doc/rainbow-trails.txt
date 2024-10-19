@@ -159,7 +159,7 @@ vimrc. >
 3. Changelog                                        *rainbow-trails-changelog*
 
 Version 1.0.0 - Completely reworked timing mechanism. Configuration options.
-                HELPFUL documentation.
+                HELPFUL documentation. Assorted bugfixes.
 Version 0.1.0 - First released version. Works in terminal.
 Version 0.0.1 - Initial dev version. Makes trails.
 
