@@ -29,9 +29,7 @@ Now Vim will enable the rainbows immediately after loading the plugin.
 
 Rainbow Trails is ENTERPRISE-READY. But maybe the Rainbows are too FANCY for your workplace. Never fear! The level of fanciness is entirely configurable. For instance:
 
-![Another short Vim session. This time the buffer contains some very obviously faked 'accounting data': if you actually look at them, the values make very little sense. Also, the file purports to be a TSV file, but, were you to :set list you would find there are no tabs in the file. Does my shamelessness know no bounds?!
-
-Oh, yeah, and when the cursor moves, the trails are in greyscale. Business.](https://normalmo.de/rainbow-greys.gif)
+![Another short Vim session. This time the buffer contains some very obviously faked 'accounting data': if you actually look at them, the values make very little sense. Also, the file purports to be a TSV file, but, were you to :set list you would find there are no tabs in the file. Does my shamelessness know no bounds?! &hellip;Oh, yeah, and when the cursor moves, the trails are in greyscale. Business.](https://normalmo.de/rainbow-greys.gif)
 
 For BUSINESS-certified rainbows, file a request to your IT department to install these [:highlight](https://vimhelp.org/syntax.txt.html#%3Ahighlight) commands in your vimrc.
 
