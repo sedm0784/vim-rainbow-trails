@@ -56,7 +56,7 @@ whereever it goes should help.
 
 Rainbow Trails is fully pre-configured to display beautiful TECHNICOLOUR
 rainbows both in GUI Vim and in terminal Vim with either 256 colours or
-'termguicolors'. But if you don't care for the colours I have METICULOUSLY
+'termguicolors'. But if you don't care for the colours I have PAINSTAKINGLY
 selected for you, you can use your own. By way of example, here are the
 highlighting commands for a greyscale rainbow, as if yanked from Ansel Adams's
 vimrc. >
@@ -80,9 +80,9 @@ vimrc. >
                                               'RainbowViolet'])
                 As detailed in |rainbow-trails-highlighting|, Rainbow Trails
                 uses the traditional seven ROYGBIV colours, but perhaps that
-                is not enough colours for you. Or perhaps it is too many!
-                Never fear. Set 'g:rainbow_colours' to declare your desired
-                set of colours. e.g. >
+                is not enough colours for you. Or maybe it is too many! Never
+                fear. Set |'g:rainbow_colours'| to declare your desired set of
+                colours. e.g. >
 
         let g:rainbow_colours = ['RainbowRed', 'RainbowGreen', 'RainbowBlue']
 <
@@ -98,15 +98,15 @@ vimrc. >
                 rainbows to be composed of wider bands of colour than more
                 ephemeral, short rainbows.
 
-                Each entry in 'g:rainbow_colour_width_thresholds' adds one
+                Each entry in |'g:rainbow_colour_width_thresholds'| adds one
                 extra character for rainbows above that length. So for the
                 default value of [8], rainbows longer than 8 characters will
                 have bands that are one extra character wide. With
-                'g:rainbow_colour_width' set to 3, this results in bands that
+                |'g:rainbow_colour_width'| set to 3, this results in bands that
                 are 4 characters wide.
 
-                Keeping the same setting for 'g:rainbow_colour_width' and
-                setting 'g:rainbow_colour_width_thresholds' to [30, 80, 80]
+                Keeping the same setting for |'g:rainbow_colour_width'| and
+                setting |'g:rainbow_colour_width_thresholds'| to [30, 80, 80]
                 would specify that rainbows that are between 30 and 79
                 characters long should have bands that are 4 characters wide,
                 and that rainbows that are 80 characters or longer should have
@@ -116,7 +116,7 @@ vimrc. >
 'g:rainbow_constant_interval'          number (default: 1)
                 The main mechanism used for setting the speed at which the
                 rainbows DASH across your buffer is
-                'g:rainbow_constant_interval'.
+                |'g:rainbow_constant_interval'|.
 
                 Positive values greater than 0 make the rainbow SLOWER, by
                 introducing a delay of that many milliseconds between each
@@ -138,16 +138,16 @@ vimrc. >
                                            *'g:rainbow_max_variable_interval'*
 'g:rainbow_max_variable_interval'      number (default: 7)
 
-                Movements shorter than 'g:rainbow_variable_timer_threshold'
+                Movements shorter than |'g:rainbow_variable_timer_threshold'|
                 have an extra timer interval applied, in a sliding scale
-                between 0 and 'g:rainbow_max_variable_interval'. Like
-                'g:rainbow_constant_interval', The variable interval is also
+                between 0 and |'g:rainbow_max_variable_interval'|. Like
+                |'g:rainbow_constant_interval'|, the variable interval is also
                 measured in milliseconds.
 
                                             *'g:rainbow_fade_rate_thresholds'*
 'g:rainbow_fade_rate_thresholds'       list   (default: [8, 30, 80])
 
-                Each entry in 'g:rainbow_fade_rate_thresholds increases the
+                Each entry in |'g:rainbow_fade_rate_thresholds'| increases the
                 number of characters the rainbow moves at each step. So with
                 the default value of [8, 30, 80], the rainbow will move one
                 character per step faster if it is 8-29 characters long, TWO
@@ -170,7 +170,8 @@ Version 0.0.1 - Initial dev version. Makes trails.
 4.1 Known Issues                                 *rainbow-trails-known-issues*
 
 1. Trails go INVISIBLE when they cross areas of the buffer with NOTHING in
-   them. Not even magical rainbows can form in the ICY VACUUM of SPACE.
+   them (i.e. the space after the ends of each line). Not even magical
+   rainbows can form in the ICY VACUUM of SPACE.
 
 2. If you start multiple rainbows and then QUICKLY switch windows sometimes
    they FREEZE and become PERMANENT. If this happens, you can clear them with
