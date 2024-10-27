@@ -264,7 +264,22 @@ endfunction
 "
 
 
-function! s:high_colour_environment() abort
+" Return if running in environment that allows interpolation
+function! s:use_interpolation(colours, colour_width) abort
+  " FIXME: Add option to disable interpolation for backwards compatability
+
+  " If the colour bands are less than three wide, there's no room to
+  " fit the interpolated colours.
+  if a:colour_width < 3
+    return 0
+  endif
+
+  " If we only have a single colour, there's nothing to interpolate between.
+  if len(a:colours) < 2
+    return 0
+  endif
+
+  " If we're in a 256-colour terminal, we can't interpolate.
   return has('gui_running') || &termguicolors
 endfunction
 
@@ -305,16 +320,9 @@ function! s:add_highlight(index, fg, bg)
 endfunction
 
 
-function! s:should_interpolate(highlights, colour_width) abort
-  " FIXME: Add option to disable interpolation for backwards compatability
-  if a:colour_width < 3
-    return 0
-  endif
-
-  if len(a:highlights) < 2
-    return 0
-  endif
-
+" Return true if the configuration options that affect interpolations have
+" changed (or if we've never interpolated)
+function! s:interpolations_are_stale(highlights, colour_width) abort
   if exists('s:highlights_interpolated') && s:highlights_interpolated == a:highlights &&
         \ exists('s:colour_width_interpolated') && s:colour_width_interpolated == a:colour_width
     return 0
@@ -328,16 +336,17 @@ endfunction
 
 " Calculate and execute intermediate highlight commands
 function! s:interpolate_highlights() abort
-  if !s:high_colour_environment()
-    let s:interpolated_colours = []
-    return
-  endif
   let colours = s:configured_colours()
   let colour_width = s:configured_colour_width()
 
+  if !s:use_interpolation(colours, colour_width)
+    let s:interpolated_colours = []
+    return
+  endif
+
   let highlights = mapnew(colours, {key, val -> s:highlights_rgb(val)})
 
-  if !s:should_interpolate(highlights, colour_width)
+  if !s:interpolations_are_stale(highlights, colour_width)
     return
   endif
 
