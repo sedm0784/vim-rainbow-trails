@@ -1,42 +1,44 @@
+vim9script
+
 scriptencoding utf-8
-let s:save_cpoptions = &cpoptions
+var save_cpoptions = &cpoptions
 set cpoptions&vim
 
-" FIXME: Profile to see if we can optimise. Otherwise, just try pulling
-"        calculations/function calls out of inner loops.
+# FIXME: Profile to see if we can optimise. Otherwise, just try pulling
+#        calculations/def calls out of inner loops.
 
-let s:matches = []
-let s:timers = []
+var matches: list<number> = []
+var timers: list<number> = []
 
-let s:default_colours = ['RainbowRed', 'RainbowOrange', 'RainbowYellow', 'RainbowGreen', 'RainbowBlue', 'RainbowIndigo', 'RainbowViolet']
-let s:default_colour_width = 3
-let s:default_colour_width_thresholds = [8]
-let s:default_constant_interval = 1
-let s:default_variable_timer_threshold = 30
-let s:default_max_variable_interval = 5
-let s:default_fade_rate_thresholds = [8, 30, 80, 150]
+const default_colours = ['RainbowRed', 'RainbowOrange', 'RainbowYellow', 'RainbowGreen', 'RainbowBlue', 'RainbowIndigo', 'RainbowViolet']
+const default_colour_width = 3
+const default_colour_width_thresholds = [8]
+const default_constant_interval = 1
+const default_variable_timer_threshold = 30
+const default_max_variable_interval = 5
+const default_fade_rate_thresholds = [8, 30, 80, 150]
 
-function! rainbow_trails#enable(enable) abort
-  " FIXME: Check for timers feature.
-  " FIXME: Check for 256 colours or termguicolors
-  if a:enable
+export def Enable(enable: number)
+  # FIXME: Check for timers feature.
+  # FIXME: Check for 256 colours or termguicolors
+  if enable
     augroup RainbowTrails
       autocmd!
-      autocmd CursorMoved * call s:cursor_moved()
-      autocmd WinLeave * call s:stop_trails()
-      autocmd WinEnter * let w:rainbow_position = getpos('.')
-      autocmd ColorScheme * call s:setup_colors()
+      autocmd CursorMoved * CursorMoved()
+      autocmd WinLeave * StopTrails()
+      autocmd WinEnter * w:rainbow_position = getpos('.')
+      autocmd ColorScheme * SetupColors()
     augroup END
-    let w:rainbow_position = getpos('.')
-    call s:setup_colors()
+    w:rainbow_position = getpos('.')
+    SetupColors()
   else
     autocmd! RainbowTrails
   endif
-endfunction
+enddef
 
 
-function! s:setup_colors() abort
-    " FIXME: Should we only highlight colours defined in s:colours()?
+def SetupColors()
+    # FIXME: Should we only highlight colours defined in Colours()?
     highlight default RainbowRed guibg=#ff0000 ctermbg=196
     highlight default RainbowOrange guibg=#ff7f00 ctermbg=208
     highlight default RainbowYellow guibg=#ffff00 ctermbg=226
@@ -44,217 +46,223 @@ function! s:setup_colors() abort
     highlight default RainbowBlue guibg=#0000ff ctermbg=21
     highlight default RainbowIndigo guibg=#00005f ctermbg=17
     highlight default RainbowViolet guibg=#7f00ff ctermbg=129
-endfunction
+enddef
 
 
-function! s:cursor_moved() abort
-  let new_position = getpos('.')
+def CursorMoved()
+  var new_position = getpos('.')
   if exists('w:rainbow_position')
-    call s:rainbow_start(new_position, w:rainbow_position)
+    RainbowStart(new_position, w:rainbow_position)
   endif
-  let w:rainbow_position = new_position
-endfunction
+  w:rainbow_position = new_position
+enddef
 
 
-function! s:rainbow_start(new_position, old_position)
-  let positions = s:bresenham(
-        \ a:old_position[2], a:old_position[1],
-        \ a:new_position[2], a:new_position[1])
+def RainbowStart(new_position: list<number>, old_position: list<number>)
+  var positions = Bresenham(
+        old_position[2], old_position[1],
+        new_position[2], new_position[1])
 
   if len(positions) == 0
     return
   endif
 
-  " How long before each character in the rainbow fades away
-  " With a colour width of 1, the first position should start with a value of
-  " num_colours - 1, because it *starts* as the first colour and then cycles
-  " through the other colours which have indexes 1-6, one per callback.
-  " With larger colour widths, we need to multiply by the width, so each
-  " colour is maintained for that number of callbacks.
-  "
-  " So e.g. with a colour width of 3 and 7 colours, we want timers to contain:
-  " [18, 19, 20, 21, ...]
-  let timers = range(len(positions))
-  call map(timers, {k, v -> v + (len(s:colours()) - 1) * s:colour_width(len(positions))})
+  # How long before each character in the rainbow fades away
+  # With a colour width of 1, the first position should start with a value of
+  # num_colours - 1, because it *starts* as the first colour and then cycles
+  # through the other colours which have indexes 1-6, one per callback.
+  # With larger colour widths, we need to multiply by the width, so each
+  # colour is maintained for that number of callbacks.
+  #
+  # So e.g. with a colour width of 3 and 7 colours, we want timers to contain:
+  # [18, 19, 20, 21, ...]
+  timers = range(len(positions))
+  map(timers, (k, v) => v + (len(Colours()) - 1) * ColourWidth(len(positions)))
 
-  let s:matches = []
+  matches = []
 
-  " Highlight everything with the first colour
-  let first_colour_positions = copy(positions)
+  # Highlight everything with the first colour
+  var first_colour_positions = copy(positions)
   while !empty(first_colour_positions)
-    " FIXME: This limitation is no longer mentioned in the current :help
-    " matchaddpos takes batches of up to 8 positions
-    call add(s:matches, matchaddpos(s:colours()[-1], first_colour_positions[:7]))
-    let first_colour_positions = first_colour_positions[8:]
+    # FIXME: This limitation is no longer mentioned in the current :help
+    # matchaddpos takes batches of up to 8 positions
+    add(matches, matchaddpos(Colours()[-1], first_colour_positions[ : 7]))
+    first_colour_positions = first_colour_positions[8 : ]
   endwhile
 
-  let timer_interval = max([1, get(g:, 'rainbow_constant_interval', s:default_constant_interval)])
+  var timer_interval = max([1, get(g:, 'rainbow_constant_interval', default_constant_interval)])
 
-  if len(timers) < s:variable_timer_threshold()
-    " Map lengths of 1..<variable_timer_threshold to
-    " rainbow_max_variable_interval-0 extra ms
+  if len(timers) < VariableTimerThreshold()
+    # Map lengths of 1..<VariableTimerThreshold to
+    # rainbow_max_variable_interval-0 extra ms
 
-    let timer_interval += s:variable_interval(len(timers))
+    timer_interval += VariableInterval(len(timers))
   endif
-  let fade_rate = -s:fade_rate(len(positions))
-  let repeats = timers[-1] / fade_rate + 1
-  let repeats += timers[-1] % fade_rate > 0
-  call add(s:timers, timer_start(timer_interval, function(
-        \ 's:rainbow_fade',
-        \ [s:matches, positions, timers]),
-        \ {'repeat': repeats}))
-endfunction
+  var fade_rate = -FadeRate(len(positions))
+  var repeats = timers[-1] / fade_rate + 1
+  repeats += timers[-1] % fade_rate > 0 ? 1 : 0
+
+  add(
+    timers,
+    timer_start(
+      timer_interval,
+      function('RainbowFade', [matches, positions, timers]),
+      {'repeat': repeats}
+    )
+  )
+enddef
 
 
-function! s:variable_interval(length) abort
-  " Convert max_variable_interval option to Float so entire calculation
-  " below is coerced to Float
-  let max_variable_interval = 1.0 * get(g:, 'rainbow_max_variable_interval', s:default_max_variable_interval)
-  return float2nr(round(
-        \ (max_variable_interval * (s:variable_timer_threshold() - a:length))
-        \ / s:variable_timer_threshold()))
-endfunction
+def VariableInterval(length: number): number
+  # Convert max_variable_interval option to Float so entire calculation
+  # below is coerced to Float
+  var max_variable_interval = 1.0 * get(g:, 'rainbow_max_variable_interval', default_max_variable_interval)
+  return float2nr(
+    round(
+        (max_variable_interval * (VariableTimerThreshold() - length))
+        / VariableTimerThreshold()
+    )
+  )
+enddef
 
 
-function! s:bresenham(x0, y0, x1, y1) abort
-  let positions = []
+def Bresenham(x0: number, y0: number, x1: number, y1: number): list<list<number>>
+  var positions = []
 
-  let dx = abs(a:x1 - a:x0)
-  let sx = a:x0 < a:x1 ? 1 : -1
-  let dy = -abs(a:y1 - a:y0)
-  let sy = a:y0 < a:y1 ? 1 : -1
-  let error = dx + dy
+  var dx = abs(x1 - x0)
+  var sx = x0 < x1 ? 1 : -1
+  var dy = -abs(y1 - y0)
+  var sy = y0 < y1 ? 1 : -1
+  var error = dx + dy
 
-  let x = a:x0
-  let y = a:y0
+  var x = x0
+  var y = y0
   while 1
-    " Don't add off-screen lines or lines hidden within closed folds
+    # Don't add off-screen lines or lines hidden within closed folds
     if y >= line('w0') && y <= line('w$') && (foldclosed(y) == -1 || foldclosed(y) == y)
-      call add(positions, [y, x])
+      add(positions, [y, x])
     endif
-    if x == a:x1 && y == a:y1
+    if x == x1 && y == y1
       break
     endif
-    let e2 = 2 * error
+    var e2 = 2 * error
     if e2 >= dy
-      if x == a:x1
+      if x == x1
         break
       endif
-      let error = error + dy
-      let x += sx
+      error = error + dy
+      x += sx
     endif
     if e2 <= dx
-      if y == a:y1
+      if y == y1
         break
       endif
-      let error = error + dx
-      let y += sy
+      error = error + dx
+      y += sy
     endif
   endwhile
 
   return positions
-endfunction
+enddef
 
 
-function! s:rainbow_fade(matches, positions, timers, timer_id) abort
-  call s:clear_matches(a:matches)
+def RainbowFade(fmatches: list<number>, positions: list<list<number>>, ftimers: list<number>, timer_id: number)
+  ClearMatches(fmatches)
 
-  let colour_width = s:colour_width(len(a:positions))
+  var colour_width = ColourWidth(len(positions))
 
-  let first_colour_positions = []
-  for i in range(len(a:positions))
-    let timer = a:timers[i]
+  var first_colour_positions = []
+  for i in range(len(positions))
+    const timer = ftimers[i]
     if timer <= 0
       continue
-    elseif timer <= (len(s:colours())) * colour_width
-      " Highlight this colour now, using 1-based indexing
-      let colour_index = (timer + colour_width - 1) / colour_width - 1
-      call add(a:matches, matchaddpos(s:colours()[colour_index], [a:positions[i]]))
+    elseif timer <= (len(Colours())) * colour_width
+      # Highlight this colour now, using 1-based indexing
+      const colour_index = (timer + colour_width - 1) / colour_width - 1
+      add(fmatches, matchaddpos(Colours()[colour_index], [positions[i]]))
     else
-      " Add to first_colour_positions to highlight at end of this loop
-      call add(first_colour_positions, a:positions[i])
+      # Add to first_colour_positions to highlight at end of this loop
+      add(first_colour_positions, positions[i])
     endif
 
-    let a:timers[i] += s:fade_rate(len(a:positions))
+    ftimers[i] += FadeRate(len(positions))
   endfor
 
   while !empty(first_colour_positions)
-    call add(a:matches, matchaddpos(s:colours()[-1], first_colour_positions[:7]))
-    let first_colour_positions = first_colour_positions[8:]
+    add(fmatches, matchaddpos(Colours()[-1], first_colour_positions[ : 7]))
+    first_colour_positions = first_colour_positions[8 : ]
   endwhile
-endfunction
+enddef
 
 
-function! s:fade_rate(rainbow_length)
-  let fade_rate = min([-1, get(g:, 'rainbow_constant_interval', s:default_constant_interval)])
+def FadeRate(rainbow_length: number): number
+  var fade_rate = min([-1, get(g:, 'rainbow_constant_interval', default_constant_interval)])
 
-  for threshold in get(g:, 'rainbow_fade_rate_thresholds', s:default_fade_rate_thresholds)
-    if a:rainbow_length >= threshold
-      let fade_rate -= 1
+  for threshold in get(g:, 'rainbow_fade_rate_thresholds', default_fade_rate_thresholds)
+    if rainbow_length >= threshold
+      fade_rate -= 1
     endif
   endfor
 
   return fade_rate
-endfunction
+enddef
 
-function! s:stop_trails() abort
-  call s:stop_timers()
-  call s:clear_matches(s:matches)
-endfunction
+def StopTrails()
+  StopTimers()
+  ClearMatches(matches)
+enddef
 
 
-function! s:stop_timers() abort
-  for id in s:timers
-    call timer_stop(id)
+def StopTimers()
+  for id in timers
+    timer_stop(id)
   endfor
 
-  let s:timers = []
-endfunction
+  timers = []
+enddef
 
 
-function! s:colour_width(rainbow_length) abort
-  let colour_width = max([1, get(g:, 'rainbow_colour_width', s:default_colour_width)])
-  for threshold in s:colour_width_thresholds()
-    if a:rainbow_length >= threshold
-      let colour_width += 1
+def ColourWidth(rainbow_length: number): number
+  var colour_width = max([1, get(g:, 'rainbow_colour_width', default_colour_width)])
+  for threshold in ColourWidthThresholds()
+    if rainbow_length >= threshold
+      colour_width += 1
     endif
   endfor
   return colour_width
-endfunction
+enddef
 
 
-function! s:clear_matches(matches) abort
-  for id in a:matches
-    " FIXME: If the user starts two rainbows and switches windows before they
-    "        complete, the second match is never deleted. Why?
-    silent! call matchdelete(id)
+def ClearMatches(fmatches: list<number>)
+  for id in fmatches
+    # FIXME: If the user starts two rainbows and switches windows before they
+    #        complete, the second match is never deleted. Why?
+    silent! matchdelete(id)
   endfor
-  if !empty(a:matches)
-    call remove(a:matches, 0, -1)
+  if !empty(fmatches)
+    remove(fmatches, 0, -1)
   endif
-endfunction
+enddef
 
-"
-" User Configuration Wrappers
-"
+#
+# User Configuration Wrappers
+#
 
-function! s:variable_timer_threshold() abort
-  return get(g:, 'rainbow_variable_timer_threshold', s:default_variable_timer_threshold)
-endfunction
-
-
-function s:colour_width_thresholds()
-  " FIXME: Should this be fully dynamic, instead of configurable? Can we come
-  "        up with a nice implementation of that that always works?
-  return get(g:, 'rainbow_colour_width_thresholds', s:default_colour_width_thresholds)
-endfunction
+def VariableTimerThreshold(): number
+  return get(g:, 'rainbow_variable_timer_threshold', default_variable_timer_threshold)
+enddef
 
 
-function! s:colours() abort
-  return reverse(copy(get(g:, 'rainbow_colours',
-        \ s:default_colours)))
-endfunction
+def ColourWidthThresholds(): list<number>
+  # FIXME: Should this be fully dynamic, instead of configurable? Can we come
+  #        up with a nice implementation of that that always works?
+  return get(g:, 'rainbow_colour_width_thresholds', default_colour_width_thresholds)
+enddef
 
 
-let &cpoptions = s:save_cpoptions
-unlet s:save_cpoptions
+def Colours(): list<string>
+  return reverse(copy(get(g:, 'rainbow_colours', default_colours)))
+enddef
+
+
+&cpoptions = save_cpoptions

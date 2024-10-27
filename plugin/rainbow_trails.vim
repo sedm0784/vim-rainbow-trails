@@ -12,4 +12,4 @@ if exists('g:loaded_rainbow_trails') || &compatible
 endif
 let g:loaded_rainbow_trails = 1
 
-command -bar -bang RainbowTrails call rainbow_trails#enable(empty('<bang>'))
+command -bar -bang RainbowTrails call rainbow_trails#Enable(empty('<bang>'))
