@@ -9,12 +9,18 @@ let s:matches = []
 let s:timers = []
 
 let s:default_colours = ['RainbowRed', 'RainbowOrange', 'RainbowYellow', 'RainbowGreen', 'RainbowBlue', 'RainbowIndigo', 'RainbowViolet']
-let s:default_colour_width = 3
-let s:default_colour_width_thresholds = [8]
+if has('gui_running')
+  let s:default_colour_width = 7
+  let s:default_colour_width_thresholds = []
+  let s:default_fade_rate_thresholds = [8, 30, 60, 75, 90, 150]
+else
+  let s:default_colour_width = 3
+  let s:default_colour_width_thresholds = [8]
+  let s:default_fade_rate_thresholds = [8, 30, 80, 150]
+endif
 let s:default_constant_interval = 1
 let s:default_variable_timer_threshold = 30
 let s:default_max_variable_interval = 5
-let s:default_fade_rate_thresholds = [8, 30, 80, 150]
 
 function! rainbow_trails#enable(enable) abort
   " FIXME: Check for timers feature.
@@ -57,6 +63,7 @@ endfunction
 
 
 function! s:rainbow_start(new_position, old_position)
+  call s:interpolate_highlights()
   let positions = s:bresenham(
         \ a:old_position[2], a:old_position[1],
         \ a:new_position[2], a:new_position[1])
@@ -213,7 +220,14 @@ endfunction
 
 
 function! s:colour_width(rainbow_length) abort
-  let colour_width = max([1, get(g:, 'rainbow_colour_width', s:default_colour_width)])
+  if empty(s:interpolated_colours)
+    let colour_width = s:configured_colour_width()
+  else
+    " We calculated interpolated values corresponding to the size of
+    " s:configured_colour_width(), so we don't need to also use that value for
+    " sizing the bands of colour.
+    let colour_width = 1
+  endif
   for threshold in s:colour_width_thresholds()
     if a:rainbow_length >= threshold
       let colour_width += 1
@@ -234,9 +248,124 @@ function! s:clear_matches(matches) abort
   endif
 endfunction
 
+
+function! s:colours() abort
+  if empty(s:interpolated_colours)
+    let colours = s:configured_colours()
+  else
+    let colours = s:interpolated_colours
+  endif
+  return reverse(copy(colours))
+endfunction
+
+
+"
+" Colour Interpolation
+"
+
+
+function! s:high_colour_environment() abort
+  return has('gui_running') || &termguicolors
+endfunction
+
+
+function! s:interpolated_rgb(lhs, rhs, index, interpolations) abort
+  return s:interpolated_hexbyte(a:lhs[:1], a:rhs[:1], a:index, a:interpolations)
+        \ .. s:interpolated_hexbyte(a:lhs[2:3], a:rhs[2:3], a:index, a:interpolations)
+        \ .. s:interpolated_hexbyte(a:lhs[4:5], a:rhs[4:5], a:index, a:interpolations)
+endfunction
+
+
+function! s:interpolated_hexbyte(lhs, rhs, index, interpolations) abort
+  if empty(a:lhs)
+    return a:rhs
+  endif
+  if empty(a:rhs)
+    return a:lhs
+  endif
+  let [lhs, rhs] = ['0x' .. a:lhs, '0x'..a:rhs]
+  let delta = rhs - lhs
+  let slice = 1.0 * delta / (a:interpolations + 1)
+  return printf('%02x', float2nr(round(lhs + slice * (a:index + 1))))
+endfunction
+
+
+function! s:highlights_rgb(group) abort
+  let hi_output = execute('highlight ' .. a:group)
+  return [matchstr(hi_output, 'guifg=#\zs\x\{6}\>'), matchstr(hi_output, 'guibg=#\zs\x\{6}\>')]
+endfunction
+
+
+function! s:add_highlight(index, fg, bg)
+  let fg = empty(a:fg) ? '' : 'guifg=#' .. a:fg
+  let bg = empty(a:bg) ? '' : 'guibg=#' .. a:bg
+  let group = 'Rainbow' .. a:index
+  execute 'highlight' group fg bg
+  return group
+endfunction
+
+
+function! s:should_interpolate(highlights, colour_width) abort
+  " FIXME: Add option to disable interpolation for backwards compatability
+  if a:colour_width < 3
+    return 0
+  endif
+
+  if len(a:highlights) < 2
+    return 0
+  endif
+
+  if exists('s:highlights_interpolated') && s:highlights_interpolated == a:highlights &&
+        \ exists('s:colour_width_interpolated') && s:colour_width_interpolated == a:colour_width
+    return 0
+  endif
+
+  let s:highlights_interpolated = a:highlights
+  let s:colour_width_interpolated = a:colour_width
+  return 1
+endfunction
+
+
+" Calculate and execute intermediate highlight commands
+function! s:interpolate_highlights() abort
+  if !s:high_colour_environment()
+    let s:interpolated_colours = []
+    return
+  endif
+  let colours = s:configured_colours()
+  let colour_width = s:configured_colour_width()
+
+  let highlights = mapnew(colours, {key, val -> s:highlights_rgb(val)})
+
+  if !s:should_interpolate(highlights, colour_width)
+    return
+  endif
+
+  let index = 0
+  let s:interpolated_colours = []
+  let [fg, bg] = highlights[0]
+  call add(s:interpolated_colours, s:add_highlight(index, fg, bg))
+  let index += 1
+
+  for i in range(1, len(highlights) - 1)
+    let [start_fg, start_bg] = highlights[i - 1]
+    let [end_fg, end_bg] = highlights[i]
+    let interpolations = s:configured_colour_width() - 2
+    for j in range(interpolations)
+      let [fg, bg] = [s:interpolated_rgb(start_fg, end_fg, j, interpolations), s:interpolated_rgb(start_bg, end_bg, j, interpolations)]
+      call add(s:interpolated_colours, s:add_highlight(index, fg, bg))
+      let index += 1
+    endfor
+    call add(s:interpolated_colours, s:add_highlight(index, end_fg, end_bg))
+    let index += 1
+  endfor
+endfunction
+
+
 "
 " User Configuration Wrappers
 "
+
 
 function! s:variable_timer_threshold() abort
   return get(g:, 'rainbow_variable_timer_threshold', s:default_variable_timer_threshold)
@@ -250,9 +379,13 @@ function s:colour_width_thresholds()
 endfunction
 
 
-function! s:colours() abort
-  return reverse(copy(get(g:, 'rainbow_colours',
-        \ s:default_colours)))
+function! s:configured_colours() abort
+  return get(g:, 'rainbow_colours', s:default_colours)
+endfunction
+
+
+function! s:configured_colour_width() abort
+  return max([1, get(g:, 'rainbow_colour_width', s:default_colour_width)])
 endfunction
 
 
